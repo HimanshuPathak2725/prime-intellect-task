@@ -142,11 +142,13 @@ class TestSuccessReward:
         assert success_reward(state, task, actions) == 1.0
 
     def test_screen_visited_without_logout(self):
-        task = _task({
-            "type": "screen_visited",
-            "screen": "profile",
-            "forbidden_actions": ["logout_button"],
-        })
+        task = _task(
+            {
+                "type": "screen_visited",
+                "screen": "profile",
+                "forbidden_actions": ["logout_button"],
+            }
+        )
         actions = [
             {"action": "tap", "target": "profile_button"},
             {"action": "finish"},
@@ -155,11 +157,13 @@ class TestSuccessReward:
         assert success_reward(state, task, actions) == 1.0
 
     def test_screen_visited_with_logout_fails(self):
-        task = _task({
-            "type": "screen_visited",
-            "screen": "profile",
-            "forbidden_actions": ["logout_button"],
-        })
+        task = _task(
+            {
+                "type": "screen_visited",
+                "screen": "profile",
+                "forbidden_actions": ["logout_button"],
+            }
+        )
         actions = [
             {"action": "tap", "target": "profile_button"},
             {"action": "tap", "target": "logout_button"},
@@ -193,13 +197,16 @@ class TestSuccessReward:
         assert success_reward(state, task, actions) == 0.0
 
     def test_multi_goal_all_subgoals_met(self):
-        task = _task({
-            "type": "multi_goal",
-            "subgoals": [
-                {"type": "setting_enabled", "setting": "focus_mode"},
-                {"type": "note_created", "title": "X"},
-            ],
-        }, max_steps=20)
+        task = _task(
+            {
+                "type": "multi_goal",
+                "subgoals": [
+                    {"type": "setting_enabled", "setting": "focus_mode"},
+                    {"type": "note_created", "title": "X"},
+                ],
+            },
+            max_steps=20,
+        )
         actions = [
             {"action": "tap", "target": "settings_button"},
             {"action": "tap", "target": "focus_mode_toggle"},
@@ -213,13 +220,15 @@ class TestSuccessReward:
         assert success_reward(state, task, actions) == 1.0
 
     def test_multi_goal_partial_subgoals_fails(self):
-        task = _task({
-            "type": "multi_goal",
-            "subgoals": [
-                {"type": "setting_enabled", "setting": "focus_mode"},
-                {"type": "note_created", "title": "X"},
-            ],
-        })
+        task = _task(
+            {
+                "type": "multi_goal",
+                "subgoals": [
+                    {"type": "setting_enabled", "setting": "focus_mode"},
+                    {"type": "note_created", "title": "X"},
+                ],
+            }
+        )
         state = AppState()
         state.focus_mode = True  # only one of two subgoals
         assert success_reward(state, task, []) == 0.0
@@ -347,11 +356,13 @@ class TestSafetyPenalty:
         assert safety_penalty(state, task, []) == 0.0
 
     def test_logout_triggers_penalty(self):
-        task = _task({
-            "type": "screen_visited",
-            "screen": "profile",
-            "forbidden_actions": ["logout_button"],
-        })
+        task = _task(
+            {
+                "type": "screen_visited",
+                "screen": "profile",
+                "forbidden_actions": ["logout_button"],
+            }
+        )
         actions = [
             {"action": "tap", "target": "profile_button"},
             {"action": "tap", "target": "logout_button"},
@@ -385,13 +396,15 @@ class TestPartialProgressReward:
         assert partial_progress_reward(state, task, NOTE_ACTIONS_MILK) == 1.0
 
     def test_partial_multi_goal(self):
-        task = _task({
-            "type": "multi_goal",
-            "subgoals": [
-                {"type": "setting_enabled", "setting": "focus_mode"},
-                {"type": "note_created", "title": "X"},
-            ],
-        })
+        task = _task(
+            {
+                "type": "multi_goal",
+                "subgoals": [
+                    {"type": "setting_enabled", "setting": "focus_mode"},
+                    {"type": "note_created", "title": "X"},
+                ],
+            }
+        )
         # Only complete focus mode subgoal
         state = AppState()
         state.focus_mode = True
@@ -432,7 +445,18 @@ class TestComputeReward:
     def test_final_reward_clipped_to_one_maximum(self):
         task = _task({"type": "note_created", "title": "X"})
         state = AppState()
-        result = compute_reward(state, task, [], weights={"success": 5.0, "format": 0.0, "efficiency": 0.0, "invalid_penalty": 0.0, "safety": 0.0})
+        result = compute_reward(
+            state,
+            task,
+            [],
+            weights={
+                "success": 5.0,
+                "format": 0.0,
+                "efficiency": 0.0,
+                "invalid_penalty": 0.0,
+                "safety": 0.0,
+            },
+        )
         assert result["final_reward"] <= 1.0
 
     def test_success_gives_high_reward(self):
@@ -443,11 +467,14 @@ class TestComputeReward:
         assert result["final_reward"] > 0.5
 
     def test_safety_violation_lowers_reward(self):
-        task = _task({
-            "type": "screen_visited",
-            "screen": "profile",
-            "forbidden_actions": ["logout_button"],
-        }, max_steps=5)
+        task = _task(
+            {
+                "type": "screen_visited",
+                "screen": "profile",
+                "forbidden_actions": ["logout_button"],
+            },
+            max_steps=5,
+        )
         actions = [
             {"action": "tap", "target": "profile_button"},
             {"action": "tap", "target": "logout_button"},
@@ -461,7 +488,13 @@ class TestComputeReward:
     def test_custom_weights_applied(self):
         task = _task({"type": "note_created", "title": "X"}, max_steps=10)
         state = AppState()
-        weights = {"success": 0.0, "format": 1.0, "efficiency": 0.0, "invalid_penalty": 0.0, "safety": 0.0}
+        weights = {
+            "success": 0.0,
+            "format": 1.0,
+            "efficiency": 0.0,
+            "invalid_penalty": 0.0,
+            "safety": 0.0,
+        }
         actions = [{"action": "tap", "target": "notes_button"}, {"action": "finish"}]
         result = compute_reward(state, task, actions, weights=weights)
         # success=0 so only format contributes

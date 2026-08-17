@@ -97,9 +97,7 @@ class MobileUIEnv:
         self._actions_log.extend(actions)
 
         # Execute actions, stopping at finish or max_steps.
-        raw_results = execute_action_sequence(
-            actions, self._state, max_steps=self.task.max_steps
-        )
+        raw_results = execute_action_sequence(actions, self._state, max_steps=self.task.max_steps)
 
         # Auto-terminate when budget is exhausted.
         if self._state.steps_taken >= self.task.max_steps and not self._state.done:
@@ -181,7 +179,9 @@ class _Rubric:
         task: Task,
         actions: list[dict[str, Any]],
     ) -> float:
-        raw = sum(w * f(state, task, actions) for f, w in zip(self.funcs, self.weights, strict=True))
+        raw = sum(
+            w * f(state, task, actions) for f, w in zip(self.funcs, self.weights, strict=True)
+        )
         return max(0.0, min(1.0, raw))
 
 

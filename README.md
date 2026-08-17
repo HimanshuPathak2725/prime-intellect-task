@@ -458,6 +458,7 @@ pip install -e ".[dev,notebook]"
 **Verify installation:**
 ```python
 from mobile_ui_env import load_environment
+
 env = load_environment()
 print(len(env.dataset), "train tasks")
 print(len(env.eval_dataset), "eval tasks")

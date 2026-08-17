@@ -75,11 +75,13 @@ def heuristic_agent(obs: dict[str, Any], task: Task) -> list[dict[str, Any]]:
     elif goal_type == "multi_note_created":
         actions.append({"action": "tap", "target": "notes_button"})
         for title in goal["titles"]:
-            actions.extend([
-                {"action": "tap", "target": "add_note_button"},
-                {"action": "type", "target": "note_input", "text": title},
-                {"action": "tap", "target": "save_note_button"},
-            ])
+            actions.extend(
+                [
+                    {"action": "tap", "target": "add_note_button"},
+                    {"action": "type", "target": "note_input", "text": title},
+                    {"action": "tap", "target": "save_note_button"},
+                ]
+            )
 
     elif goal_type in ("setting_enabled", "setting_disabled"):
         setting = goal["setting"]
@@ -114,14 +116,20 @@ def heuristic_agent(obs: dict[str, Any], task: Task) -> list[dict[str, Any]]:
             actions.append({"action": "tap", "target": label_map[field]})
 
     elif goal_type == "version_reported":
-        actions.extend([
-            {"action": "tap", "target": "settings_button"},
-            {"action": "tap", "target": "version_label"},
-        ])
+        actions.extend(
+            [
+                {"action": "tap", "target": "settings_button"},
+                {"action": "tap", "target": "version_label"},
+            ]
+        )
 
     elif goal_type == "screen_visited":
         screen = goal["screen"]
-        nav_map = {"profile": "profile_button", "settings": "settings_button", "notes": "notes_button"}
+        nav_map = {
+            "profile": "profile_button",
+            "settings": "settings_button",
+            "notes": "notes_button",
+        }
         actions.append({"action": "tap", "target": nav_map.get(screen, f"{screen}_button")})
         # Deliberately avoid forbidden actions
 
@@ -236,6 +244,7 @@ def _compute_metrics(results: list[dict[str, Any]]) -> dict[str, Any]:
 
 def _per_goal_breakdown(results: list[dict[str, Any]]) -> dict[str, dict]:
     from collections import defaultdict
+
     buckets: dict[str, list[float]] = defaultdict(list)
     for r in results:
         gtype = r.get("goal_type", "unknown")
@@ -270,7 +279,7 @@ def print_metrics(metrics: dict[str, Any], agent_name: str) -> None:
     print(f"  Total eval tasks   : {metrics['total_tasks']}")
 
     sr = metrics["success_rate"]
-    sr_str = f"{sr*100:.1f}%"
+    sr_str = f"{sr * 100:.1f}%"
     colour = _GREEN if sr >= 0.7 else (_YELLOW if sr >= 0.4 else _RED)
     print(f"  Success rate       : {_col(sr_str, colour)}")
     print(f"  Average reward     : {metrics['avg_reward']:.4f}")
@@ -281,9 +290,9 @@ def print_metrics(metrics: dict[str, Any], agent_name: str) -> None:
 
     if metrics["per_goal_type"]:
         print(f"\n  {'Goal type':<28} {'Count':>5}  {'Success':>8}")
-        print(f"  {'─'*28} {'─'*5}  {'─'*8}")
+        print(f"  {'─' * 28} {'─' * 5}  {'─' * 8}")
         for gtype, info in metrics["per_goal_type"].items():
-            pct = f"{info['success_rate']*100:.0f}%"
+            pct = f"{info['success_rate'] * 100:.0f}%"
             c = _GREEN if info["success_rate"] >= 0.7 else _RED
             print(f"  {gtype:<28} {info['count']:>5}  {_col(pct, c):>8}")
 
@@ -291,19 +300,16 @@ def print_metrics(metrics: dict[str, Any], agent_name: str) -> None:
 
 
 def print_verbose(results: list[dict[str, Any]]) -> None:
-    print(f"\n{'─'*80}")
+    print(f"\n{'─' * 80}")
     print(f"  {'ID':<12} {'Instruction':<38} {'Succ':>5} {'Reward':>7} {'Saf':>4}")
-    print(f"{'─'*80}")
+    print(f"{'─' * 80}")
     for r in results:
         ri = r["reward_info"]
         succ = _col("✓", _GREEN) if ri["success_reward"] == 1.0 else _col("✗", _RED)
         saf = _col("!", _RED) if ri["safety_penalty"] > 0 else " "
         instr = r.get("instruction", "")[:37]
-        print(
-            f"  {r['task_id']:<12} {instr:<38} {succ:>5} "
-            f"{ri['final_reward']:>7.4f} {saf:>4}"
-        )
-    print(f"{'─'*80}\n")
+        print(f"  {r['task_id']:<12} {instr:<38} {succ:>5} {ri['final_reward']:>7.4f} {saf:>4}")
+    print(f"{'─' * 80}\n")
 
 
 # ---------------------------------------------------------------------------
@@ -347,17 +353,22 @@ def run_eval(
     print_metrics(metrics, agent_name)
 
     if output_path:
-        payload = {"agent": agent_name, "split": split, "metrics": metrics, "results": [
-            {
-                "task_id": r["task_id"],
-                "instruction": r["instruction"],
-                "goal_type": r["goal_type"],
-                "steps_taken": r["steps_taken"],
-                "reward_info": r["reward_info"],
-                "done": r["done"],
-            }
-            for r in results
-        ]}
+        payload = {
+            "agent": agent_name,
+            "split": split,
+            "metrics": metrics,
+            "results": [
+                {
+                    "task_id": r["task_id"],
+                    "instruction": r["instruction"],
+                    "goal_type": r["goal_type"],
+                    "steps_taken": r["steps_taken"],
+                    "reward_info": r["reward_info"],
+                    "done": r["done"],
+                }
+                for r in results
+            ],
+        }
         with open(output_path, "w") as f:
             json.dump(payload, f, indent=2)
         print(f"Results saved to {output_path}\n")
@@ -366,9 +377,7 @@ def run_eval(
 
 
 def main() -> None:
-    parser = argparse.ArgumentParser(
-        description="Evaluate the Mobile UI Agent environment."
-    )
+    parser = argparse.ArgumentParser(description="Evaluate the Mobile UI Agent environment.")
     parser.add_argument(
         "--agent",
         choices=["heuristic", "llm", "dummy"],
@@ -404,8 +413,10 @@ def main() -> None:
         agent_name = "heuristic-baseline"
 
     elif args.agent == "dummy":
+
         def agent_fn(obs, task):  # type: ignore
             return [{"action": "finish"}]
+
         agent_name = "dummy-finish-only"
 
     elif args.agent == "llm":

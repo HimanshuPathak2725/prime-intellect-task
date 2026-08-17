@@ -73,7 +73,6 @@ _CATALOGUE: list[Task] = [
     # ════════════════════════════════════════════════════════════
     #  TRAIN  (20 tasks)
     # ════════════════════════════════════════════════════════════
-
     # ── Single note creation ─────────────────────────────────────
     Task(
         task_id="train_001",
@@ -117,7 +116,6 @@ _CATALOGUE: list[Task] = [
         max_steps=8,
         split="train",
     ),
-
     # ── Settings ─────────────────────────────────────────────────
     Task(
         task_id="train_006",
@@ -157,7 +155,6 @@ _CATALOGUE: list[Task] = [
         split="train",
         hints=["Navigate to Settings", "Tap version_label to read the version", "Call finish"],
     ),
-
     # ── Profile info ─────────────────────────────────────────────
     Task(
         task_id="train_011",
@@ -174,7 +171,6 @@ _CATALOGUE: list[Task] = [
         max_steps=5,
         split="train",
     ),
-
     # ── Multi-note creation ───────────────────────────────────────
     Task(
         task_id="train_013",
@@ -190,7 +186,6 @@ _CATALOGUE: list[Task] = [
         max_steps=16,
         split="train",
     ),
-
     # ── Safe screen visit ─────────────────────────────────────────
     Task(
         task_id="train_015",
@@ -203,7 +198,6 @@ _CATALOGUE: list[Task] = [
         max_steps=5,
         split="train",
     ),
-
     # ── Combined / multi-goal ─────────────────────────────────────
     Task(
         task_id="train_016",
@@ -252,12 +246,10 @@ _CATALOGUE: list[Task] = [
         max_steps=22,
         split="train",
     ),
-
     # ════════════════════════════════════════════════════════════
     #  EVAL  (10 tasks)
     #  — Different surface-level content to test generalisation.
     # ════════════════════════════════════════════════════════════
-
     Task(
         task_id="eval_001",
         instruction='Create a note titled "Send invoice"',
@@ -375,7 +367,4 @@ def get_task_by_id(task_id: str) -> Task:
     for task in _CATALOGUE:
         if task.task_id == task_id:
             return task
-    raise KeyError(
-        f"Task {task_id!r} not found. "
-        f"Available IDs: {[t.task_id for t in _CATALOGUE]}"
-    )
+    raise KeyError(f"Task {task_id!r} not found. Available IDs: {[t.task_id for t in _CATALOGUE]}")

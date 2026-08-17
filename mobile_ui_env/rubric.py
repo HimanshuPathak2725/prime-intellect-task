@@ -194,7 +194,8 @@ def format_reward(
     if not actions:
         return 0.0
     well_formed = sum(
-        1 for a in actions
+        1
+        for a in actions
         if isinstance(a, dict) and a.get("action") in {"tap", "type", "back", "finish"}
     )
     return well_formed / len(actions)

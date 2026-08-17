@@ -71,23 +71,17 @@ class TestValidation:
     def test_type_on_non_typeable_element(self):
         """note_list is visible on NOTES but not typeable."""
         state = fresh_state(Screen.NOTES)
-        ok, msg = validate_action(
-            {"action": "type", "target": "note_list", "text": "hello"}, state
-        )
+        ok, msg = validate_action({"action": "type", "target": "note_list", "text": "hello"}, state)
         assert not ok
 
     def test_type_empty_text(self):
         state = fresh_state(Screen.NOTES)
-        ok, msg = validate_action(
-            {"action": "type", "target": "note_input", "text": ""}, state
-        )
+        ok, msg = validate_action({"action": "type", "target": "note_input", "text": ""}, state)
         assert not ok
 
     def test_type_whitespace_only_text(self):
         state = fresh_state(Screen.NOTES)
-        ok, msg = validate_action(
-            {"action": "type", "target": "note_input", "text": "   "}, state
-        )
+        ok, msg = validate_action({"action": "type", "target": "note_input", "text": "   "}, state)
         assert not ok
 
     def test_back_always_valid(self):

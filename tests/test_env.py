@@ -163,19 +163,23 @@ class TestInvalidActionResilience:
 
     def test_invalid_actions_counted_in_state(self, note_env):
         note_env.reset()
-        note_env.step([
-            {"action": "tap", "target": "ghost_1"},
-            {"action": "tap", "target": "ghost_2"},
-        ])
+        note_env.step(
+            [
+                {"action": "tap", "target": "ghost_1"},
+                {"action": "tap", "target": "ghost_2"},
+            ]
+        )
         assert note_env.state.invalid_action_count == 2
 
     def test_invalid_actions_penalised_in_reward(self, note_env):
         note_env.reset()
-        result = note_env.step([
-            {"action": "tap", "target": "ghost_1"},
-            {"action": "tap", "target": "ghost_2"},
-            {"action": "finish"},
-        ])
+        result = note_env.step(
+            [
+                {"action": "tap", "target": "ghost_1"},
+                {"action": "tap", "target": "ghost_2"},
+                {"action": "finish"},
+            ]
+        )
         assert result["reward_info"]["invalid_action_penalty"] > 0.0
 
 
@@ -187,24 +191,28 @@ class TestInvalidActionResilience:
 class TestNoteCreation:
     def test_successful_note_creation(self, note_env):
         note_env.reset()
-        note_env.step([
-            {"action": "tap", "target": "notes_button"},
-            {"action": "tap", "target": "add_note_button"},
-            {"action": "type", "target": "note_input", "text": "Buy milk"},
-            {"action": "tap", "target": "save_note_button"},
-            {"action": "finish"},
-        ])
+        note_env.step(
+            [
+                {"action": "tap", "target": "notes_button"},
+                {"action": "tap", "target": "add_note_button"},
+                {"action": "type", "target": "note_input", "text": "Buy milk"},
+                {"action": "tap", "target": "save_note_button"},
+                {"action": "finish"},
+            ]
+        )
         assert "Buy milk" in note_env.state.notes
 
     def test_note_count_after_creation(self, note_env):
         note_env.reset()
-        note_env.step([
-            {"action": "tap", "target": "notes_button"},
-            {"action": "type", "target": "note_input", "text": "Note A"},
-            {"action": "tap", "target": "save_note_button"},
-            {"action": "type", "target": "note_input", "text": "Note B"},
-            {"action": "tap", "target": "save_note_button"},
-        ])
+        note_env.step(
+            [
+                {"action": "tap", "target": "notes_button"},
+                {"action": "type", "target": "note_input", "text": "Note A"},
+                {"action": "tap", "target": "save_note_button"},
+                {"action": "type", "target": "note_input", "text": "Note B"},
+                {"action": "tap", "target": "save_note_button"},
+            ]
+        )
         assert len(note_env.state.notes) == 2
 
 
@@ -218,41 +226,49 @@ class TestSuccessOnCorrectTask:
 
     def test_note_task_success(self, note_env):
         note_env.reset()
-        result = note_env.step([
-            {"action": "tap", "target": "notes_button"},
-            {"action": "tap", "target": "add_note_button"},
-            {"action": "type", "target": "note_input", "text": "Buy milk"},
-            {"action": "tap", "target": "save_note_button"},
-            {"action": "finish"},
-        ])
+        result = note_env.step(
+            [
+                {"action": "tap", "target": "notes_button"},
+                {"action": "tap", "target": "add_note_button"},
+                {"action": "type", "target": "note_input", "text": "Buy milk"},
+                {"action": "tap", "target": "save_note_button"},
+                {"action": "finish"},
+            ]
+        )
         assert result["reward_info"]["success_reward"] == 1.0
 
     def test_focus_task_success(self, focus_task):
         env = MobileUIEnv(focus_task)
         env.reset()
-        result = env.step([
-            {"action": "tap", "target": "settings_button"},
-            {"action": "tap", "target": "focus_mode_toggle"},
-            {"action": "finish"},
-        ])
+        result = env.step(
+            [
+                {"action": "tap", "target": "settings_button"},
+                {"action": "tap", "target": "focus_mode_toggle"},
+                {"action": "finish"},
+            ]
+        )
         assert result["reward_info"]["success_reward"] == 1.0
 
     def test_done_set_on_finish(self, note_env):
         note_env.reset()
-        result = note_env.step([
-            {"action": "tap", "target": "notes_button"},
-            {"action": "type", "target": "note_input", "text": "Buy milk"},
-            {"action": "tap", "target": "save_note_button"},
-            {"action": "finish"},
-        ])
+        result = note_env.step(
+            [
+                {"action": "tap", "target": "notes_button"},
+                {"action": "type", "target": "note_input", "text": "Buy milk"},
+                {"action": "tap", "target": "save_note_button"},
+                {"action": "finish"},
+            ]
+        )
         assert result["done"]
 
     def test_failed_task_zero_success(self, note_env):
         note_env.reset()
-        result = note_env.step([
-            {"action": "tap", "target": "notes_button"},
-            {"action": "finish"},
-        ])
+        result = note_env.step(
+            [
+                {"action": "tap", "target": "notes_button"},
+                {"action": "finish"},
+            ]
+        )
         assert result["reward_info"]["success_reward"] == 0.0
 
 
@@ -267,28 +283,34 @@ class TestSafetyViolation:
     def test_logout_triggers_safety_penalty(self, profile_task):
         env = MobileUIEnv(profile_task)
         env.reset()
-        result = env.step([
-            {"action": "tap", "target": "profile_button"},
-            {"action": "tap", "target": "logout_button"},
-            {"action": "finish"},
-        ])
+        result = env.step(
+            [
+                {"action": "tap", "target": "profile_button"},
+                {"action": "tap", "target": "logout_button"},
+                {"action": "finish"},
+            ]
+        )
         assert result["reward_info"]["safety_penalty"] == 1.0
 
     def test_logout_reduces_final_reward(self, profile_task):
         env_safe = MobileUIEnv(profile_task)
         env_safe.reset()
-        safe_result = env_safe.step([
-            {"action": "tap", "target": "profile_button"},
-            {"action": "finish"},
-        ])
+        safe_result = env_safe.step(
+            [
+                {"action": "tap", "target": "profile_button"},
+                {"action": "finish"},
+            ]
+        )
 
         env_unsafe = MobileUIEnv(profile_task)
         env_unsafe.reset()
-        unsafe_result = env_unsafe.step([
-            {"action": "tap", "target": "profile_button"},
-            {"action": "tap", "target": "logout_button"},
-            {"action": "finish"},
-        ])
+        unsafe_result = env_unsafe.step(
+            [
+                {"action": "tap", "target": "profile_button"},
+                {"action": "tap", "target": "logout_button"},
+                {"action": "finish"},
+            ]
+        )
 
         assert (
             safe_result["reward_info"]["final_reward"]
@@ -298,10 +320,12 @@ class TestSafetyViolation:
     def test_no_logout_no_penalty(self, profile_task):
         env = MobileUIEnv(profile_task)
         env.reset()
-        result = env.step([
-            {"action": "tap", "target": "profile_button"},
-            {"action": "finish"},
-        ])
+        result = env.step(
+            [
+                {"action": "tap", "target": "profile_button"},
+                {"action": "finish"},
+            ]
+        )
         assert result["reward_info"]["safety_penalty"] == 0.0
 
 
@@ -337,7 +361,9 @@ class TestEpisodeTermination:
         env_b.reset()
         result_b = env_b.step(actions)
 
-        assert result_a["reward_info"]["success_reward"] == result_b["reward_info"]["success_reward"]
+        assert (
+            result_a["reward_info"]["success_reward"] == result_b["reward_info"]["success_reward"]
+        )
         assert result_a["done"] == result_b["done"]
 
     def test_actions_log_grows(self, note_env):
@@ -453,12 +479,14 @@ class TestLoadEnvironment:
         task = get_task_by_id("train_015")  # profile screen, logout forbidden
         episode_env = env.make_env(task)
         episode_env.reset()
-        episode_env.step([
-            {"action": "tap", "target": "profile_button"},
-            {"action": "tap", "target": "logout_button"},
-            {"action": "tap", "target": "ghost_widget"},
-            {"action": "finish"},
-        ])
+        episode_env.step(
+            [
+                {"action": "tap", "target": "profile_button"},
+                {"action": "tap", "target": "logout_button"},
+                {"action": "tap", "target": "ghost_widget"},
+                {"action": "finish"},
+            ]
+        )
         score = env.rubric.score(episode_env.state, task, episode_env.actions_log)
         assert score < 0.5, (
             f"Unsafe, invalid, unsuccessful trajectory scored {score} — "
