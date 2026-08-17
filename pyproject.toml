@@ -1,0 +1,95 @@
+[build-system]
+requires = ["hatchling"]
+build-backend = "hatchling.build"
+
+[project]
+name = "mobile-ui-env"
+version = "0.1.0"
+description = "Mobile UI Agent RL Environment – Prime Intellect Take-Home Assignment"
+readme = "README.md"
+license = { text = "MIT" }
+requires-python = ">=3.10"
+
+# Core package has zero runtime dependencies on purpose:
+# the environment is self-contained and the verifiers package is optional.
+dependencies = []
+
+[project.optional-dependencies]
+dev = [
+    "pytest>=7.4",
+    "pytest-cov>=4.1",
+    "ruff>=0.4",
+    "mypy>=1.8",
+]
+llm = [
+    "openai>=1.30",
+]
+notebook = [
+    "jupyter>=1.0",
+    "ipykernel>=6.0",
+    "matplotlib>=3.7",
+    "pandas>=2.0",
+]
+all = [
+    "mobile-ui-env[dev,llm,notebook]",
+]
+
+[project.scripts]
+run-eval = "run_eval:main"
+
+[tool.hatch.build.targets.wheel]
+packages = ["mobile_ui_env"]
+
+# ---------------------------------------------------------------------------
+# pytest
+# ---------------------------------------------------------------------------
+[tool.pytest.ini_options]
+testpaths     = ["tests"]
+addopts       = "-v --tb=short"
+filterwarnings = ["ignore::DeprecationWarning"]
+
+# ---------------------------------------------------------------------------
+# Coverage
+# ---------------------------------------------------------------------------
+[tool.coverage.run]
+source = ["mobile_ui_env"]
+omit   = ["tests/*", "run_eval.py"]
+
+[tool.coverage.report]
+show_missing = true
+skip_empty   = true
+
+# ---------------------------------------------------------------------------
+# Ruff (linter + formatter)
+# ---------------------------------------------------------------------------
+[tool.ruff]
+line-length    = 100
+target-version = "py310"
+src            = ["mobile_ui_env", "tests"]
+
+[tool.ruff.lint]
+select = [
+    "E",   # pycodestyle errors
+    "W",   # pycodestyle warnings
+    "F",   # pyflakes
+    "I",   # isort
+    "UP",  # pyupgrade
+    "B",   # flake8-bugbear
+    "SIM", # flake8-simplify
+]
+ignore = [
+    "E501",  # line length handled by formatter
+]
+
+[tool.ruff.lint.isort]
+known-first-party = ["mobile_ui_env"]
+
+# ---------------------------------------------------------------------------
+# mypy
+# ---------------------------------------------------------------------------
+[tool.mypy]
+python_version      = "3.10"
+strict              = false
+ignore_missing_imports = true
+check_untyped_defs  = true
+warn_unused_ignores = true
