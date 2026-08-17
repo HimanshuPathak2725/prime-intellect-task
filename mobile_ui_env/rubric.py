@@ -44,11 +44,10 @@ Reward hacking notes (discussed in README)
 
 from __future__ import annotations
 
-from typing import Any, Dict, List, Optional
+from typing import Any
 
 from .dataset import Task
-from .state import APP_STATIC, AppState
-
+from .state import AppState
 
 # ---------------------------------------------------------------------------
 # Goal evaluation helpers
@@ -56,9 +55,9 @@ from .state import APP_STATIC, AppState
 
 
 def _check_goal(
-    goal: Dict[str, Any],
+    goal: dict[str, Any],
     state: AppState,
-    actions: List[Dict[str, Any]],
+    actions: list[dict[str, Any]],
 ) -> bool:
     """
     Return True if *goal* is satisfied given the post-episode *state* and
@@ -125,7 +124,7 @@ def _check_goal(
     return False
 
 
-def _setting_value(setting: str, state: AppState) -> Optional[bool]:
+def _setting_value(setting: str, state: AppState) -> bool | None:
     """Return the bool value of a named setting, or None if unknown."""
     if setting == "focus_mode":
         return state.focus_mode
@@ -134,15 +133,15 @@ def _setting_value(setting: str, state: AppState) -> Optional[bool]:
     return None
 
 
-def _tapped_targets(actions: List[Dict[str, Any]]) -> set:
+def _tapped_targets(actions: list[dict[str, Any]]) -> set:
     """Return the set of all targets that were tapped in *actions*."""
     return {a.get("target") for a in actions if a.get("action") == "tap"}
 
 
 def _count_subgoals(
-    goal: Dict[str, Any],
+    goal: dict[str, Any],
     state: AppState,
-    actions: List[Dict[str, Any]],
+    actions: list[dict[str, Any]],
 ) -> tuple:
     """Return ``(met, total)`` subgoal counts for partial progress scoring."""
     if goal["type"] == "multi_goal":
@@ -160,7 +159,7 @@ def _count_subgoals(
 def success_reward(
     state: AppState,
     task: Task,
-    actions: List[Dict[str, Any]],
+    actions: list[dict[str, Any]],
 ) -> float:
     """
     **Sparse** reward: 1.0 if and only if the task goal is fully satisfied.
@@ -179,7 +178,7 @@ def success_reward(
 def format_reward(
     state: AppState,
     task: Task,
-    actions: List[Dict[str, Any]],
+    actions: list[dict[str, Any]],
 ) -> float:
     """
     **Dense** reward: fraction of actions that are structurally well-formed.
@@ -204,7 +203,7 @@ def format_reward(
 def efficiency_reward(
     state: AppState,
     task: Task,
-    actions: List[Dict[str, Any]],
+    actions: list[dict[str, Any]],
 ) -> float:
     """
     **Dense** reward: how efficiently the agent completed the goal.
@@ -231,7 +230,7 @@ def efficiency_reward(
 def invalid_action_penalty(
     state: AppState,
     task: Task,
-    actions: List[Dict[str, Any]],
+    actions: list[dict[str, Any]],
 ) -> float:
     """
     **Dense** penalty: normalised count of invalid actions taken.
@@ -250,7 +249,7 @@ def invalid_action_penalty(
 def safety_penalty(
     state: AppState,
     task: Task,
-    actions: List[Dict[str, Any]],
+    actions: list[dict[str, Any]],
 ) -> float:
     """
     **Sparse** penalty: 1.0 if any safety violation occurred (e.g. logout).
@@ -267,7 +266,7 @@ def safety_penalty(
 def partial_progress_reward(
     state: AppState,
     task: Task,
-    actions: List[Dict[str, Any]],
+    actions: list[dict[str, Any]],
 ) -> float:
     """
     **Shaped** reward: fraction of sub-goals completed.
@@ -295,10 +294,10 @@ def partial_progress_reward(
 def compute_reward(
     state: AppState,
     task: Task,
-    actions: List[Dict[str, Any]],
+    actions: list[dict[str, Any]],
     *,
-    weights: Optional[Dict[str, float]] = None,
-) -> Dict[str, float]:
+    weights: dict[str, float] | None = None,
+) -> dict[str, float]:
     """
     Compute all reward components and the final clipped reward.
 

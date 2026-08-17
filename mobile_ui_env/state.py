@@ -25,8 +25,6 @@ from __future__ import annotations
 
 from dataclasses import dataclass, field
 from enum import Enum
-from typing import Dict, List
-
 
 # ---------------------------------------------------------------------------
 # Screen definitions
@@ -43,7 +41,7 @@ class Screen(str, Enum):
 
 
 # Elements visible (and interactable) on each screen.
-SCREEN_ELEMENTS: Dict[Screen, List[str]] = {
+SCREEN_ELEMENTS: dict[Screen, list[str]] = {
     Screen.HOME: ["notes_button", "settings_button", "profile_button"],
     Screen.NOTES: ["add_note_button", "note_input", "save_note_button", "note_list"],
     Screen.SETTINGS: ["focus_mode_toggle", "notifications_toggle", "version_label"],
@@ -51,7 +49,7 @@ SCREEN_ELEMENTS: Dict[Screen, List[str]] = {
 }
 
 # Which tap-targets navigate to which screen.
-NAV_MAP: Dict[str, Screen] = {
+NAV_MAP: dict[str, Screen] = {
     "notes_button": Screen.NOTES,
     "settings_button": Screen.SETTINGS,
     "profile_button": Screen.PROFILE,
@@ -62,7 +60,7 @@ TYPEABLE_ELEMENTS: set = {"note_input"}
 
 # Static read-only app data — would come from the real app's database in
 # a live emulator environment.
-APP_STATIC: Dict[str, str] = {
+APP_STATIC: dict[str, str] = {
     "username": "alice",
     "email": "alice@example.com",
     "app_version": "1.4.2",
@@ -84,7 +82,7 @@ class AppState:
 
     # ── Visible app state ──────────────────────────────────────────────────
     current_screen: Screen = Screen.HOME
-    notes: List[str] = field(default_factory=list)
+    notes: list[str] = field(default_factory=list)
     focus_mode: bool = False
     notifications: bool = True
     note_input_buffer: str = ""
@@ -97,7 +95,7 @@ class AppState:
 
     # ── Helpers ────────────────────────────────────────────────────────────
 
-    def available_elements(self) -> List[str]:
+    def available_elements(self) -> list[str]:
         """Return the UI elements visible on the current screen."""
         return list(SCREEN_ELEMENTS[self.current_screen])
 
@@ -130,7 +128,7 @@ class AppState:
 
         return obs
 
-    def clone(self) -> "AppState":
+    def clone(self) -> AppState:
         """Return a deep-enough copy for rollout branching / tree search."""
         return AppState(
             current_screen=self.current_screen,

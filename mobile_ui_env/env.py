@@ -23,7 +23,8 @@ The returned object must have:
 
 from __future__ import annotations
 
-from typing import Any, Callable, Dict, List, Optional
+from collections.abc import Callable
+from typing import Any
 
 from .actions import execute_action_sequence
 from .dataset import Task, build_dataset
@@ -36,7 +37,6 @@ from .rubric import (
     success_reward,
 )
 from .state import AppState
-
 
 # ---------------------------------------------------------------------------
 # Core environment
@@ -60,18 +60,18 @@ class MobileUIEnv:
 
     def __init__(self, task: Task) -> None:
         self.task = task
-        self._state: Optional[AppState] = None
-        self._actions_log: List[Dict[str, Any]] = []
+        self._state: AppState | None = None
+        self._actions_log: list[dict[str, Any]] = []
 
     # ── Gym-style interface ────────────────────────────────────────────────
 
-    def reset(self) -> Dict[str, Any]:
+    def reset(self) -> dict[str, Any]:
         """Reset to a fresh episode and return the initial observation."""
         self._state = AppState()
         self._actions_log = []
         return self._observe()
 
-    def step(self, actions: List[Dict[str, Any]]) -> Dict[str, Any]:
+    def step(self, actions: list[dict[str, Any]]) -> dict[str, Any]:
         """
         Execute *actions* and return a transition dict.
 
@@ -122,7 +122,7 @@ class MobileUIEnv:
             ],
         }
 
-    def run_episode(self, actions: List[Dict[str, Any]]) -> Dict[str, Any]:
+    def run_episode(self, actions: list[dict[str, Any]]) -> dict[str, Any]:
         """
         Convenience: reset then step in one call.
 
@@ -134,7 +134,7 @@ class MobileUIEnv:
 
     # ── Observation ───────────────────────────────────────────────────────
 
-    def _observe(self) -> Dict[str, Any]:
+    def _observe(self) -> dict[str, Any]:
         obs = self._state.observation()
         obs["task"] = {
             "instruction": self.task.instruction,
@@ -152,7 +152,7 @@ class MobileUIEnv:
         return self._state
 
     @property
-    def actions_log(self) -> List[Dict[str, Any]]:
+    def actions_log(self) -> list[dict[str, Any]]:
         """Return a copy of the full action history for this episode."""
         return list(self._actions_log)
 
@@ -179,9 +179,9 @@ class _Rubric:
         self,
         state: AppState,
         task: Task,
-        actions: List[Dict[str, Any]],
+        actions: list[dict[str, Any]],
     ) -> float:
-        raw = sum(w * f(state, task, actions) for f, w in zip(self.funcs, self.weights))
+        raw = sum(w * f(state, task, actions) for f, w in zip(self.funcs, self.weights, strict=True))
         return max(0.0, min(1.0, raw))
 
 
@@ -198,8 +198,8 @@ class _SingleTurnEnv:
 
     def __init__(
         self,
-        dataset: List[Task],
-        eval_dataset: List[Task],
+        dataset: list[Task],
+        eval_dataset: list[Task],
         rubric: _Rubric,
     ) -> None:
         self.dataset = dataset
@@ -212,9 +212,9 @@ class _SingleTurnEnv:
 
     def evaluate(
         self,
-        agent_fn: Callable[[Dict[str, Any], Task], List[Dict[str, Any]]],
+        agent_fn: Callable[[dict[str, Any], Task], list[dict[str, Any]]],
         split: str = "eval",
-    ) -> List[Dict[str, Any]]:
+    ) -> list[dict[str, Any]]:
         """
         Run *agent_fn* over every task in the requested split.
 
@@ -229,7 +229,7 @@ class _SingleTurnEnv:
         List of result dicts, one per task (includes task_id and reward_info).
         """
         tasks = self.eval_dataset if split == "eval" else self.dataset
-        results: List[Dict[str, Any]] = []
+        results: list[dict[str, Any]] = []
         for task in tasks:
             env = self.make_env(task)
             obs = env.reset()

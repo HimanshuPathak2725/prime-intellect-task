@@ -22,13 +22,12 @@ logic, and unit-test validation independently from execution.
 
 from __future__ import annotations
 
-from dataclasses import dataclass, field
-from typing import Any, Dict, List, Tuple
+from dataclasses import dataclass
+from typing import Any
 
 from .state import (
     APP_STATIC,
     NAV_MAP,
-    SCREEN_ELEMENTS,
     TYPEABLE_ELEMENTS,
     AppState,
     Screen,
@@ -72,9 +71,9 @@ class ActionResult:
 
 
 def validate_action(
-    action: Dict[str, Any],
+    action: dict[str, Any],
     state: AppState,
-) -> Tuple[bool, str]:
+) -> tuple[bool, str]:
     """
     Return ``(is_valid, reason)`` without mutating *state*.
 
@@ -125,7 +124,7 @@ def validate_action(
 # ---------------------------------------------------------------------------
 
 
-def execute_action(action: Dict[str, Any], state: AppState) -> ActionResult:
+def execute_action(action: dict[str, Any], state: AppState) -> ActionResult:
     """
     Execute *action* against *state* (in place) and return an ``ActionResult``.
 
@@ -245,10 +244,10 @@ def _execute_type(target: str, text: str, state: AppState) -> ActionResult:
 
 
 def execute_action_sequence(
-    actions: List[Dict[str, Any]],
+    actions: list[dict[str, Any]],
     state: AppState,
     max_steps: int = 20,
-) -> List[ActionResult]:
+) -> list[ActionResult]:
     """
     Execute a sequence of actions against *state*, stopping early if the
     episode is done or ``max_steps`` is reached.
@@ -256,7 +255,7 @@ def execute_action_sequence(
     Returns the list of ``ActionResult`` objects in the same order as
     *actions* (possibly shorter if early termination occurs).
     """
-    results: List[ActionResult] = []
+    results: list[ActionResult] = []
     for action in actions:
         if state.done or state.steps_taken >= max_steps:
             break

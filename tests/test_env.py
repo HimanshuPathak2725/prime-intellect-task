@@ -17,7 +17,6 @@ from mobile_ui_env.dataset import build_dataset, get_task_by_id
 from mobile_ui_env.env import MobileUIEnv, load_environment
 from mobile_ui_env.state import Screen
 
-
 # ---------------------------------------------------------------------------
 # Fixtures
 # ---------------------------------------------------------------------------
@@ -152,7 +151,7 @@ class TestInvalidActionResilience:
     def test_malformed_action_list_does_not_crash(self, note_env):
         note_env.reset()
         try:
-            result = note_env.step([None, 42, "bad"])  # type: ignore
+            note_env.step([None, 42, "bad"])  # type: ignore
         except Exception as exc:
             pytest.fail(f"step() raised {type(exc).__name__}: {exc}")
 

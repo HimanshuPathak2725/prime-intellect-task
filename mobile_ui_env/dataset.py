@@ -38,8 +38,7 @@ Design notes
 from __future__ import annotations
 
 from dataclasses import dataclass, field
-from typing import Any, Dict, List, Literal
-
+from typing import Any, Literal
 
 # ---------------------------------------------------------------------------
 # Data structure
@@ -50,12 +49,12 @@ from typing import Any, Dict, List, Literal
 class Task:
     task_id: str
     instruction: str
-    goal: Dict[str, Any]
+    goal: dict[str, Any]
     max_steps: int
     split: Literal["train", "eval"]
-    hints: List[str] = field(default_factory=list)
+    hints: list[str] = field(default_factory=list)
 
-    def to_dict(self) -> Dict[str, Any]:
+    def to_dict(self) -> dict[str, Any]:
         """Serialise to a plain dict (matches the spec JSON schema)."""
         return {
             "task_id": self.task_id,
@@ -70,7 +69,7 @@ class Task:
 # Task catalogue
 # ---------------------------------------------------------------------------
 
-_CATALOGUE: List[Task] = [
+_CATALOGUE: list[Task] = [
     # ════════════════════════════════════════════════════════════
     #  TRAIN  (20 tasks)
     # ════════════════════════════════════════════════════════════
@@ -353,7 +352,7 @@ _CATALOGUE: List[Task] = [
 # ---------------------------------------------------------------------------
 
 
-def build_dataset(split: Literal["train", "eval", "all"] = "train") -> List[Task]:
+def build_dataset(split: Literal["train", "eval", "all"] = "train") -> list[Task]:
     """
     Return tasks for the requested split.
 

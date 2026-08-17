@@ -21,8 +21,7 @@ from mobile_ui_env.rubric import (
     safety_penalty,
     success_reward,
 )
-from mobile_ui_env.state import AppState, Screen
-
+from mobile_ui_env.state import AppState
 
 # ---------------------------------------------------------------------------
 # Helpers

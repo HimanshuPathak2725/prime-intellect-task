@@ -37,18 +37,18 @@ import os
 import sys
 import textwrap
 import time
-from typing import Any, Callable, Dict, List
+from collections.abc import Callable
+from typing import Any
 
 from mobile_ui_env.dataset import Task, build_dataset
 from mobile_ui_env.env import MobileUIEnv
-
 
 # ---------------------------------------------------------------------------
 # Heuristic baseline agent
 # ---------------------------------------------------------------------------
 
 
-def _note_actions(title: str) -> List[Dict[str, Any]]:
+def _note_actions(title: str) -> list[dict[str, Any]]:
     return [
         {"action": "tap", "target": "notes_button"},
         {"action": "tap", "target": "add_note_button"},
@@ -57,7 +57,7 @@ def _note_actions(title: str) -> List[Dict[str, Any]]:
     ]
 
 
-def heuristic_agent(obs: Dict[str, Any], task: Task) -> List[Dict[str, Any]]:
+def heuristic_agent(obs: dict[str, Any], task: Task) -> list[dict[str, Any]]:
     """
     Rule-based agent that maps goal types to hand-crafted action sequences.
 
@@ -67,7 +67,7 @@ def heuristic_agent(obs: Dict[str, Any], task: Task) -> List[Dict[str, Any]]:
     """
     goal = task.goal
     goal_type = goal["type"]
-    actions: List[Dict[str, Any]] = []
+    actions: list[dict[str, Any]] = []
 
     if goal_type == "note_created":
         actions.extend(_note_actions(goal["title"]))
@@ -150,7 +150,7 @@ def heuristic_agent(obs: Dict[str, Any], task: Task) -> List[Dict[str, Any]]:
 # ---------------------------------------------------------------------------
 
 
-def _build_llm_prompt(obs: Dict[str, Any], task: Task) -> str:
+def _build_llm_prompt(obs: dict[str, Any], task: Task) -> str:
     obs_str = json.dumps(obs, indent=2)
     return textwrap.dedent(f"""
         You are an AI agent controlling a mobile app.
@@ -187,7 +187,7 @@ def make_llm_agent(model: str = "gpt-4o-mini") -> Callable:
         base_url=os.environ.get("OPENAI_BASE_URL"),
     )
 
-    def llm_agent(obs: Dict[str, Any], task: Task) -> List[Dict[str, Any]]:
+    def llm_agent(obs: dict[str, Any], task: Task) -> list[dict[str, Any]]:
         prompt = _build_llm_prompt(obs, task)
         try:
             response = client.chat.completions.create(
@@ -212,7 +212,7 @@ def make_llm_agent(model: str = "gpt-4o-mini") -> Callable:
 # ---------------------------------------------------------------------------
 
 
-def _compute_metrics(results: List[Dict[str, Any]]) -> Dict[str, Any]:
+def _compute_metrics(results: list[dict[str, Any]]) -> dict[str, Any]:
     n = len(results)
     if n == 0:
         return {}
@@ -234,9 +234,9 @@ def _compute_metrics(results: List[Dict[str, Any]]) -> Dict[str, Any]:
     }
 
 
-def _per_goal_breakdown(results: List[Dict[str, Any]]) -> Dict[str, Dict]:
+def _per_goal_breakdown(results: list[dict[str, Any]]) -> dict[str, dict]:
     from collections import defaultdict
-    buckets: Dict[str, List[float]] = defaultdict(list)
+    buckets: dict[str, list[float]] = defaultdict(list)
     for r in results:
         gtype = r.get("goal_type", "unknown")
         buckets[gtype].append(r["reward_info"]["success_reward"])
@@ -262,7 +262,7 @@ def _col(text: str, colour: str) -> str:
     return f"{colour}{text}{_RESET}" if sys.stdout.isatty() else text
 
 
-def print_metrics(metrics: Dict[str, Any], agent_name: str) -> None:
+def print_metrics(metrics: dict[str, Any], agent_name: str) -> None:
     sep = "─" * 52
     print(f"\n{_BOLD}{sep}{_RESET}")
     print(f"  Mobile UI Env — Eval Results  [{agent_name}]")
@@ -290,7 +290,7 @@ def print_metrics(metrics: Dict[str, Any], agent_name: str) -> None:
     print(f"{_BOLD}{sep}{_RESET}\n")
 
 
-def print_verbose(results: List[Dict[str, Any]]) -> None:
+def print_verbose(results: list[dict[str, Any]]) -> None:
     print(f"\n{'─'*80}")
     print(f"  {'ID':<12} {'Instruction':<38} {'Succ':>5} {'Reward':>7} {'Saf':>4}")
     print(f"{'─'*80}")
@@ -317,9 +317,9 @@ def run_eval(
     verbose: bool = False,
     output_path: str | None = None,
     agent_name: str = "heuristic",
-) -> Dict[str, Any]:
+) -> dict[str, Any]:
     tasks = build_dataset(split)  # type: ignore[arg-type]
-    results: List[Dict[str, Any]] = []
+    results: list[dict[str, Any]] = []
 
     print(f"\nRunning {agent_name} agent on {len(tasks)} {split} tasks…")
     t0 = time.time()
